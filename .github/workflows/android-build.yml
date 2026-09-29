@@ -50,27 +50,3 @@ jobs:
           draft: false
           prerelease: false
           generate_release_notes: true
-
-  # -------------------------------------------------
-  # Opsional: Build & push OmniRoute binary (Go)
-  # -------------------------------------------------
-  omniroute-build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          repository: your-org/omniroute   # submodule terpisah
-          path: omniroute
-      - name: Siapkan Go
-        uses: actions/setup-go@v5
-        with:
-          go-version: '1.22'
-      - name: Buat binary
-        run: |
-          cd omniroute
-          make build   # asumsi Makefile menghasilkan `omniroute`
-      - name: Upload binary
-        uses: actions/upload-artifact@v4
-        with:
-          name: omniroute-bin
-          path: omniroute/omniroute
