@@ -18,10 +18,9 @@ fi
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 cd "$SCRIPT_DIR"
 
-# If wrapper JAR missing, download it using the properties file
+# If wrapper JAR missing, download it
 if [ ! -f "$WRAPPER_JAR" ]; then
   echo "Wrapper JAR not found, downloading..."
-  # Use the wrapper to bootstrap itself
   "$JAVA_CMD" -jar "$WRAPPER_JAR" --gradle-version 8.5 > /dev/null 2>&1 || true
 fi
 
