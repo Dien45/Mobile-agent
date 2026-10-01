@@ -20,10 +20,28 @@ jobs:
           java-version: 21
 
       - name: Make gradlew executable
-        run: chmod +x ./gradlew
+        run: chmod +x ./gradlew 2>/dev/null || true
+
+      - name: Generate Gradle wrapper (if missing/invalid)
+        run: |
+          if [ ! -f gradle/wrapper/gradle-wrapper.jar ]; then
+            echo "Wrapper JAR missing, generating..."
+            gradle wrapper --gradle-version 8.5
+          else
+            echo "Wrapper JAR exists, validating..."
+            java -jar gradle/wrapper/gradle-wrapper.jar --version 2>/dev/null || {
+              echo "Wrapper JAR invalid, regenerating..."
+              gradle wrapper --gradle-version 8.5
+            }
+          fi
 
       - name: Build debug APK
-        run: ./gradlew app:assembleDebug --stacktrace
+        run: |
+          if [ -f gradle/wrapper/gradle-wrapper.jar ]; then
+            ./gradlew app:assembleDebug --stacktrace
+          else
+            gradle app:assembleDebug --stacktrace
+          fi
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
