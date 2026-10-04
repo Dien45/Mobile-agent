@@ -3,12 +3,13 @@
 *.test
 *.out
 coverage.*
+.tools/
 
 # Runtime state and secrets
 .env
 .env.*
 !.env.example
-.nadi/
+.arka/
 *.db
 *.db-shm
 *.db-wal
