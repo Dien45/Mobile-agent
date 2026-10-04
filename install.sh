@@ -24,16 +24,23 @@ else
   URL="https://go.dev/dl/$ARCHIVE"
   echo "Downloading pinned Go $GO_VERSION for $OS/$GOARCH…"
   curl -fL --retry 3 "$URL" -o "$CACHE/$ARCHIVE"
-  curl -fL --retry 3 "$URL.sha256" -o "$CACHE/$ARCHIVE.sha256"
-  EXPECTED=$(tr -d '[:space:]' < "$CACHE/$ARCHIVE.sha256")
+  EXPECTED=$(curl -fsSL "https://go.dev/dl/?mode=json&include=all" | awk -v archive="$ARCHIVE" '
+    index($0, "\"filename\": \"" archive "\"") { found = 1 }
+    found && /\"sha256\":/ {
+      gsub(/[\",]/, "", $2)
+      print $2
+      exit
+    }
+  ')
+  [ -n "$EXPECTED" ] || { echo "Could not read the Go checksum from official release metadata" >&2; exit 1; }
   ACTUAL=$(sha256sum "$CACHE/$ARCHIVE" 2>/dev/null | awk '{print $1}' || shasum -a 256 "$CACHE/$ARCHIVE" | awk '{print $1}')
-  [ "$EXPECTED" = "$ACTUAL" ] || { echo "Go checksum verification failed" >&2; exit 1; }
+  [ "$EXPECTED" = "$ACTUAL" ] || { echo "Go checksum verification failed" >&2; rm -f "$CACHE/$ARCHIVE"; exit 1; }
   rm -rf "$CACHE/go"
   tar -C "$CACHE" -xzf "$CACHE/$ARCHIVE"
   GO="$CACHE/go/bin/go"
 fi
 
-if [ "$is_termux" = true ]; then PREFIX_DIR="${PREFIX}/bin"; else PREFIX_DIR="${ARKA_BIN_DIR:-$HOME/.local/bin}"; fi
+if [ "$is_termux" = true ]; then PREFIX_DIR="${PREFIX}/bin"; else PREFIX_DIR="${ARKA_BIN_DIR:-$HOME/.local/bin"; fi
 mkdir -p "$PREFIX_DIR"
 echo "Building Arka locally…"
 (cd "$ROOT" && "$GO" build -trimpath -ldflags="-s -w" -o "$PREFIX_DIR/arka" ./cmd/arka)
