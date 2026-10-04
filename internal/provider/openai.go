@@ -8,6 +8,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"sort"
 	"strings"
 	"time"
 
@@ -68,9 +69,42 @@ func (c *Client) request(ctx context.Context, p core.ProviderProfile, method, en
 func (c *Client) Models(ctx context.Context, p core.ProviderProfile) ([]core.Model, error) {
 	ep, err := endpoint(p.BaseURL, p.ModelsPath, "models"); if err != nil { return nil, err }
 	b, err := c.request(ctx, p, http.MethodGet, ep, nil); if err != nil { return nil, err }
-	var raw struct { Data []struct { ID, OwnedBy string } `json:"data"` }
-	if err := json.Unmarshal(b, &raw); err != nil { return nil, err }
-	out := make([]core.Model, 0, len(raw.Data)); for _, m := range raw.Data { out = append(out, core.Model{ID:m.ID, OwnedBy:m.OwnedBy}) }
+	return decodeModels(b)
+}
+
+func decodeModels(data []byte) ([]core.Model, error) {
+	var root any
+	if err := json.Unmarshal(data, &root); err != nil { return nil, fmt.Errorf("decode model catalog: %w", err) }
+	items := root
+	if object, ok := root.(map[string]any); ok {
+		var found bool
+		for _, key := range []string{"data", "models", "items"} {
+			if value, exists := object[key]; exists { items, found = value, true; break }
+		}
+		if !found { return nil, fmt.Errorf("model catalog has no data, models, or items list") }
+	}
+	list, ok := items.([]any); if !ok { return nil, fmt.Errorf("model catalog list has unsupported format") }
+	seen := map[string]bool{}
+	out := make([]core.Model, 0, len(list))
+	for _, item := range list {
+		id, owner := "", ""
+		switch value := item.(type) {
+		case string:
+			id = value
+		case map[string]any:
+			for _, key := range []string{"id", "name", "model", "model_id"} {
+				if text, ok := value[key].(string); ok && strings.TrimSpace(text) != "" { id = text; break }
+			}
+			for _, key := range []string{"owned_by", "owner", "provider"} {
+				if text, ok := value[key].(string); ok { owner = text; break }
+			}
+		}
+		id = strings.TrimSpace(id)
+		if id == "" || seen[id] { continue }
+		seen[id] = true
+		out = append(out, core.Model{ID:id, OwnedBy:owner})
+	}
+	sort.Slice(out, func(i, j int) bool { return out[i].ID < out[j].ID })
 	return out, nil
 }
 
