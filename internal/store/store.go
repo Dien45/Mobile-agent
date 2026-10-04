@@ -119,3 +119,10 @@ func (s *Store) SaveProvider(v core.ProviderProfile) error {
 }
 
 func (s *Store) Provider(id string) (core.ProviderProfile, bool) { s.mu.RLock(); defer s.mu.RUnlock(); v, ok := s.data.Providers[id]; return v, ok }
+
+func (s *Store) DeleteProvider(id string) error {
+	s.mu.Lock(); defer s.mu.Unlock()
+	if _, ok := s.data.Providers[id]; !ok { return os.ErrNotExist }
+	delete(s.data.Providers, id)
+	return s.persistLocked()
+}
