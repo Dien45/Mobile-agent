@@ -40,12 +40,34 @@ else
   GO="$CACHE/go/bin/go"
 fi
 
-if [ "$is_termux" = true ]; then PREFIX_DIR="${PREFIX}/bin"; else PREFIX_DIR="${ARKA_BIN_DIR:-$HOME/.local/bin"; fi
+if [ -n "${ARKA_BIN_DIR:-}" ]; then
+  PREFIX_DIR="$ARKA_BIN_DIR"
+elif [ "$is_termux" = true ]; then
+  PREFIX_DIR="${PREFIX}/bin"
+elif [ -d /usr/local/bin ] && [ -w /usr/local/bin ]; then
+  PREFIX_DIR="/usr/local/bin"
+else
+  PREFIX_DIR="$HOME/.local/bin"
+fi
 mkdir -p "$PREFIX_DIR"
 echo "Building Arka locally…"
 (cd "$ROOT" && "$GO" build -trimpath -ldflags="-s -w" -o "$PREFIX_DIR/arka" ./cmd/arka)
 chmod 755 "$PREFIX_DIR/arka"
 
 echo "Installed: $PREFIX_DIR/arka"
-case ":$PATH:" in *":$PREFIX_DIR:"*) ;; *) echo "Add this to your shell profile: export PATH=\"$PREFIX_DIR:\$PATH\"";; esac
+case ":$PATH:" in
+  *":$PREFIX_DIR:"*) ;;
+  *)
+    case "${SHELL:-}" in
+      */bash) PROFILE="$HOME/.bashrc" ;;
+      */zsh) PROFILE="$HOME/.zshrc" ;;
+      *) PROFILE="$HOME/.profile" ;;
+    esac
+    PATH_LINE="export PATH=\"$PREFIX_DIR:\$PATH\""
+    touch "$PROFILE"
+    grep -Fqx "$PATH_LINE" "$PROFILE" || printf '\n%s\n' "$PATH_LINE" >> "$PROFILE"
+    echo "Added $PREFIX_DIR to PATH in $PROFILE"
+    echo "Reload it now with: . $PROFILE"
+    ;;
+esac
 echo "Run: arka start"
