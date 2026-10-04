@@ -1,37 +1,24 @@
-# Built application files
-*.apk
-*.aab
+# Go
+/bin/
+*.test
+*.out
+coverage.*
 
-# Gradle
-.gradle
-build/
-local.properties
-.gradle/
+# Runtime state and secrets
+.env
+.env.*
+!.env.example
+.nadi/
+*.db
+*.db-shm
+*.db-wal
+
+# Editors / OS
 .idea/
-
-# Signing configs
-key.jks
-keystore.properties
-
-# Environment variables
-local.properties
-
-# OS
+.vscode/
 .DS_Store
 Thumbs.db
 
-# Logs
-*.log
-
-# Proot bundling
-app/src/main/jniLibs/**/*
-!app/src/main/jniLibs/.gitkeep
-
-# Kotlin
-*.kotlin_module
-*.iml
-
-# Misc
-/.externalNativeBuild
-/.cxx
-/cxx/
+# Temporary files
+*.tmp
+*.swp
