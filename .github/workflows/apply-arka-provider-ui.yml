@@ -1,0 +1,22 @@
+name: Apply Arka provider UI hotfix
+on:
+  push:
+    branches: [main]
+    paths: ['.arka-hotfix/provider-ui.tar.gz.b64']
+permissions:
+  contents: write
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install corrected source
+        shell: bash
+        run: |
+          base64 -d .arka-hotfix/provider-ui.tar.gz.b64 | tar -xzf -
+          rm -rf .arka-hotfix .github/workflows/apply-arka-provider-ui.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "fix: close mobile navigation and manage providers"
+          git push
