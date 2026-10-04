@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="light dark"><title>Arka — Local AI Agent</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+<div class="app-shell">
+  <aside class="sidebar clay">
+    <div class="brand"><div class="logo">A</div><div><strong>Arka</strong><small>local agent</small></div></div>
+    <button id="new-session" class="primary full">＋ New session</button>
+    <div class="section-title"><span>Sessions</span><button id="refresh" title="Refresh">↻</button></div>
+    <nav id="sessions" aria-label="Chat sessions"></nav>
+    <div class="side-actions">
+      <button data-panel="skills">◈ Skills</button><button data-panel="terminal">⌘ Terminal</button><button data-panel="settings">⚙ Settings</button>
+    </div>
+    <div id="connection" class="connection">● local daemon</div>
+  </aside>
+
+  <main class="main clay">
+    <header class="topbar">
+      <button id="menu" class="mobile-only">☰</button>
+      <div class="session-heading"><input id="session-title" value="Select or create a session" disabled><span id="task-state" class="pill">idle</span></div>
+      <div class="model-controls"><select id="provider-select" aria-label="Provider"></select><select id="model-select" aria-label="Model"></select></div>
+    </header>
+    <section id="empty" class="empty-state"><div class="hero-orb">✦</div><h1>Your agent lives here.</h1><p>Everything runs on this device. Choose a provider, create a session, and give Arka a task.</p><button id="empty-new" class="primary">Create your first session</button></section>
+    <section id="chat" class="chat hidden" aria-live="polite"></section>
+    <form id="composer" class="composer hidden"><textarea id="prompt" rows="1" placeholder="Ask Arka to build, inspect, or automate…"></textarea><button id="stop" type="button" class="danger hidden">Stop</button><button type="submit" class="send">➤</button></form>
+  </main>
+
+  <section id="panel" class="panel clay hidden" aria-label="Utility panel">
+    <header><h2 id="panel-title">Panel</h2><button id="panel-close">×</button></header><div id="panel-body"></div>
+  </section>
+</div>
+<dialog id="confirm"><form method="dialog"><h3>Delete session?</h3><p>The session will move to trash. Running tasks must be stopped first.</p><div><button value="cancel">Cancel</button><button value="confirm" class="danger">Delete</button></div></form></dialog>
+<div id="toast" role="status"></div>
+<script type="module" src="/app.js"></script>
+</body></html>
