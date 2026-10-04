@@ -7,13 +7,15 @@
 </head>
 <body>
 <div class="app-shell">
-  <aside class="sidebar clay">
+  <div id="sidebar-backdrop" class="sidebar-backdrop" aria-hidden="true"></div>
+  <aside class="sidebar clay" aria-label="Main navigation">
+    <button id="side-close" class="side-close mobile-only" aria-label="Close navigation">×</button>
     <div class="brand"><div class="logo">A</div><div><strong>Arka</strong><small>local agent</small></div></div>
     <button id="new-session" class="primary full">＋ New session</button>
     <div class="section-title"><span>Sessions</span><button id="refresh" title="Refresh">↻</button></div>
     <nav id="sessions" aria-label="Chat sessions"></nav>
     <div class="side-actions">
-      <button data-panel="skills">◈ Skills</button><button data-panel="terminal">⌘ Terminal</button><button data-panel="settings">⚙ Settings</button>
+      <button data-panel="skills">◈ Skills</button><button data-panel="github">◆ GitHub</button><button data-panel="terminal">⌘ Terminal</button><button data-panel="settings">⚙ Settings</button>
     </div>
     <div id="connection" class="connection">● local daemon</div>
   </aside>
@@ -35,5 +37,5 @@
 </div>
 <dialog id="confirm"><form method="dialog"><h3>Delete session?</h3><p>The session will move to trash. Running tasks must be stopped first.</p><div><button value="cancel">Cancel</button><button value="confirm" class="danger">Delete</button></div></form></dialog>
 <div id="toast" role="status"></div>
-<script type="module" src="/app.js"></script>
+<script type="module" src="/app.js?v=20261004-2"></script>
 </body></html>
